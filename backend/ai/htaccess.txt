@@ -1,0 +1,4 @@
+# Only read_photo.php can be called from a browser; the settings file never.
+<Files "ai_config.php">
+  Require all denied
+</Files>

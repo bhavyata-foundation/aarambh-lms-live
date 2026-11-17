@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bhavyata Portal — teacher flow prototype</title>
+<link rel="stylesheet" href="css/style-legacy.css" />
+<link rel="stylesheet" href="css/style-new-design.css" />
+</head>
+<body>
+
+<div id="preview-banner"></div>
+
+<div id="google_translate_element" style="position:fixed; top:10px; right:10px; z-index:9999; background:#fff; border-radius:8px; padding:4px 8px; box-shadow:0 2px 8px rgba(0,0,0,0.15); font-size:12px;"></div>
+
+<div id="view-login">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-brand">
+        <span class="brand-badge">🌱</span>
+        <h2>Bhavyata portal</h2>
+      </div>
+      <p class="sub">Sign in to continue</p>
+      <span class="role-label">I am a...</span>
+      <div class="role-grid">
+        <div class="role-btn active" data-role="teacher" onclick="selectRole('teacher', this)"><span class="icon">🧑‍🏫</span><span>Teacher</span></div>
+        <div class="role-btn" data-role="supervisor" onclick="selectRole('supervisor', this)"><span class="icon">📋</span><span>Supervisor</span></div>
+        <div class="role-btn" data-role="parent" onclick="selectRole('parent', this)"><span class="icon">👪</span><span>Parent</span></div>
+        <div class="role-btn" data-role="superadmin" onclick="selectRole('superadmin', this)"><span class="icon">🛡️</span><span>Super Admin</span></div>
+        <div class="role-btn" data-role="principal" onclick="selectRole('principal', this)"><span class="icon">🏫</span><span>Principal</span></div>
+      </div>
+      <form id="loginForm" onsubmit="return handleLoginSubmit(event)" autocomplete="on">
+        <label>Email address</label>
+        <input type="email" id="loginEmail" name="email" placeholder="name@bhavyata.org" autocomplete="username" required />
+        <label>Password</label>
+        <input type="password" id="loginPassword" name="password" placeholder="Enter password" autocomplete="current-password" required />
+        <div id="loginError" class="login-error hidden"></div>
+        <button type="submit" class="btn-primary" id="loginBtn">Sign in</button>
+      </form>
+      <div class="forgot">Forgot password?</div>
+      <div class="login-footer">🛟 <span>New here? Contact your school admin for access.</span></div>
+      <div id="devSkipLoginWrap" class="hidden" style="text-align:center; margin-top:10px;">
+        <a href="#" onclick="devSkipLogin(); return false;" style="font-size:12px; color:var(--text-muted); text-decoration:underline;">
+          Skip login (dev mode)
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- After a log out, forget any signed-in data kept in this browser, so the login page starts clean. -->
+<script>
+  (function(){
+    var q = new URLSearchParams(window.location.search);
+    if(q.has('logged_out') || q.has('no_dev')){
+      try { localStorage.clear(); } catch(e){}
+      try { sessionStorage.clear(); } catch(e){}
+      history.replaceState(null, '', window.location.pathname);
+    }
+  })();
+</script>
+<script src="js/main.js" defer></script>
+
+<!-- ===========================================================
+     GOOGLE TRANSLATE — auto-translates the whole page.
+     includedLanguages restricts the dropdown to only these 3
+     extra languages (English is always the original/default,
+     so the dropdown effectively offers 4 total).
+     If this ever stops working (Google could withdraw the free
+     script without notice), the real fallback is the paid
+     Google Cloud Translation API, called from the backend —
+     a bigger change, not a drop-in replacement.
+     =========================================================== -->
+<script>
+  function googleTranslateElementInit(){
+    new google.translate.TranslateElement({
+      pageLanguage: 'en',
+      includedLanguages: 'hi,mr,gu',
+      layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+      autoDisplay: false
+    }, 'google_translate_element');
+  }
+</script>
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<script src="js/test-mode-banner.js"></script>
+<script src="js/hide-ref-codes.js"></script>
+</body>
+</html>

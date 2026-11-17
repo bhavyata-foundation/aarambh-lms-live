@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AARAMBH — Teacher</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="stylesheet" href="css/style-legacy.css" />
+<link rel="stylesheet" href="css/style-new-design.css" />
+<style>
+  /* ===== Transition report (Jr KG -> Sr KG) ===== */
+  .transition-filter-row{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:22px;}
+  .transition-filter-field{flex:1; min-width:180px;}
+  .transition-filter-field label{font-size:10.5px; font-weight:bold; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px; display:block;}
+  .transition-filter-field select{width:100%; padding:9px 10px; border:1px solid var(--border); border-radius:8px; font-size:13px; background:#fff; font-family:inherit;}
+
+  .transition-stat-grid{display:grid; grid-template-columns:repeat(6,1fr); gap:14px; margin-bottom:26px;}
+  @media (max-width:1200px){.transition-stat-grid{grid-template-columns:repeat(3,1fr);}}
+  @media (max-width:700px){.transition-stat-grid{grid-template-columns:repeat(2,1fr);}}
+  .transition-stat-card{background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px;}
+  .transition-stat-card .t-label{font-size:10.5px; font-weight:bold; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; margin:0 0 10px;}
+  .transition-stat-card .t-value{font-size:26px; font-weight:bold; margin:0 0 10px; color:var(--text);}
+  .transition-stat-card .t-value-sub{font-size:13px; font-weight:normal; color:var(--text-muted); margin-left:4px;}
+  .t-tag{display:inline-block; font-size:11px; font-weight:bold; padding:3px 10px; border-radius:12px; margin-bottom:10px; background:var(--bg); color:var(--text-muted);}
+  .t-tag.good{background:var(--success-bg); color:var(--success);}
+  .t-tag.watch{background:var(--warning-bg); color:var(--warning);}
+  .t-progress{height:6px; background:var(--bg); border-radius:4px; overflow:hidden; margin-bottom:10px;}
+  .t-progress-fill{height:100%; background:var(--primary); border-radius:4px;}
+  .t-code{font-size:10.5px; color:var(--text-muted); margin:0;}
+
+  .transition-section-head{display:flex; align-items:center; justify-content:space-between; margin:26px 0 16px; padding-top:14px; border-top:1px solid var(--border);}
+  .transition-section-head h3{margin:0; font-size:16px;}
+  .req-badge{font-size:11px; font-weight:bold; color:var(--primary-dark); background:var(--primary-light); padding:3px 9px; border-radius:8px; white-space:nowrap;}
+
+  .transition-two-col{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+  @media (max-width:900px){.transition-two-col{grid-template-columns:1fr;}}
+  .transition-panel{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:22px;}
+  .transition-panel h4{margin:0 0 10px; font-size:15px;}
+  .transition-panel > p{font-size:13px; color:var(--text-muted); line-height:1.65; margin:0 0 18px;}
+
+  .hbar-axis{display:flex; justify-content:space-between; font-size:10.5px; color:var(--text-muted); margin:0 0 10px 150px;}
+  .hbar-row{display:flex; align-items:center; gap:10px; margin-bottom:16px;}
+  .hbar-row:last-child{margin-bottom:0;}
+  .hbar-row-label{width:140px; font-size:12px; color:var(--text); flex-shrink:0; line-height:1.3;}
+  .hbar-track{flex:1; height:16px; background:var(--bg); border-radius:4px;}
+  .hbar-fill{height:100%; border-radius:4px;}
+  .hbar-fill.green{background:var(--success);}
+  .hbar-fill.orange{background:#EE8F35;}
+  .hbar-count{width:80px; font-size:12px; color:var(--text-muted); flex-shrink:0;}
+
+  .transition-stat-card.flagged{background:var(--warning-bg);}
+  .transition-roster-wrap{margin-top:20px;}
+  .transition-roster-note{font-size:12px; font-weight:normal; color:var(--text-muted); margin-left:8px;}
+  .flag-icon{color:var(--warning); font-weight:bold; font-size:14px;}
+  /* Tick boxes and radio buttons: never stretched to the full width (their text sits right next to them) */
+  input[type="checkbox"], input[type="radio"]{ width:auto !important; min-width:0; flex:0 0 auto; padding:0; margin:0; }
+</style>
+</head>
+<body>
+
+<div id="preview-banner"></div>
+
+<div id="google_translate_element" style="position:fixed; top:60px; right:14px; z-index:70; background:#fff; border-radius:8px; padding:4px 8px; box-shadow:0 2px 8px rgba(0,0,0,0.15); font-size:12px;"></div>
+
+<div id="view-attendance" class="hidden">
+  <div class="topbar">
+    <div class="topbar-left"><span class="topbar-brand"><span class="topbar-brand-icon"><img src="assets/logo.png" alt="Bhavyata Foundation logo" class="brand-logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><span class="brand-fallback-emoji">🌱</span></span><span class="brand">AARAMBH</span></span><span class="tag">Teacher</span></div>
+    <button onclick="logout()">Log out</button>
+  </div>
+  <div class="attend-wrap">
+    <div class="attend-card">
+      <div class="icon-big">🗓️</div>
+      <h2>Mark today's attendance</h2>
+      <p id="attendGateMessage">It's past 12:30 PM — please mark today's attendance to continue.</p>
+      <button class="btn-present" onclick="markAttendance('present')">Mark myself present</button>
+      <button class="btn-absent" onclick="markAttendance('absent')">Mark leave / absent</button>
+    </div>
+  </div>
+</div>
+
+<div id="view-dashboard" class="hidden">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+      <span class="topbar-brand"><span class="topbar-brand-icon"><img src="assets/logo.png" alt="Bhavyata Foundation logo" class="brand-logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><span class="brand-fallback-emoji">🌱</span></span><span class="topbar-brand-text"><span class="brand">AARAMBH</span><span class="topbar-brand-sub" id="topbarSchoolLine">An initiative by Bhavyata Foundation</span></span></span>
+      <span class="page-label" id="pageLabel">My Day</span>
+    </div>
+    <div class="user-menu" id="userMenu">
+      <button class="user-menu-trigger" onclick="toggleUserMenu()">
+        <span class="user-avatar">MS</span>
+        <span class="user-name-block">
+          <span class="user-name">Mrs. Sharma</span>
+          <span class="tag">Teacher</span>
+        </span>
+        <span class="user-caret">▾</span>
+      </button>
+      <div class="user-dropdown hidden" id="userDropdown">
+        <button onclick="closeUserMenu(); switchSidebarSection('teacherprofile');">👤 My Profile</button>
+        <button onclick="logout()">Log out</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+  <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-scroll">
+    <div class="sidebar-nav">
+      <div class="grp">Teaching</div>
+      <button class="sidebar-nav-btn active" id="navMyDay" onclick="switchSidebarSection('myday')"><span class="icon">▦</span><span>My Day</span></button>
+
+      <div class="grp">Effective</div>
+      <button class="sidebar-nav-btn" id="navMonthlyEffective" onclick="switchSidebarSection('monthlyeffective')"><span class="icon">⇧</span><span>Monthly Effective</span></button>
+
+      <div class="grp">Assessment</div>
+      <button class="sidebar-nav-btn" id="navAssessment" onclick="switchSidebarSection('assessment')"><span class="icon">✎</span><span>Assessment</span></button>
+
+      <div class="grp">Attendance</div>
+      <button class="sidebar-nav-btn" id="navClassAttendance" onclick="switchSidebarSection('classattendance')"><span class="icon">🗓️</span><span>Class Attendance</span></button>
+
+      <div class="grp">Parents</div>
+      <button class="sidebar-nav-btn" id="navFamilyParents" onclick="switchSidebarSection('familyparents')"><span class="icon">👪</span><span>Family & Parents</span></button>
+
+      <div class="grp">School Resources</div>
+      <button class="sidebar-nav-btn" id="navMaterials" onclick="switchSidebarSection('materials')"><span class="icon">📦</span><span>TLM &amp; Resources</span></button>
+
+      <div class="grp">Reports</div>
+      <button class="sidebar-nav-btn" id="navAssessmentDashboard" onclick="switchSidebarSection('assessmentdashboard')"><span class="icon">◆</span><span>Assessment Dashboard</span></button>
+      <button class="sidebar-nav-btn" id="navParentInvolvement" onclick="switchSidebarSection('parentinvolvement')"><span class="icon">◍</span><span>Parent Involvement</span></button>
+      <button class="sidebar-nav-btn" id="navAttendanceDashboard" onclick="switchSidebarSection('attendancedashboard')"><span class="icon">▦</span><span>Attendance Dashboard</span></button>
+
+      <div class="grp">Profile</div>
+      <button class="sidebar-nav-btn" id="navTeacherProfile" onclick="switchSidebarSection('teacherprofile')"><span class="icon">👤</span><span>Teacher Profile</span></button>
+    </div>
+    <div id="sidebar-workbook-section">
+      <div class="sidebar-label">Term 1 · June–Sept</div>
+      <div id="week-list"></div>
+    </div>
+    </div>
+  </div>
+
+  <div class="dash">
+    <div class="banner-success">
+      <span>✓ Attendance marked for today — Present</span>
+      <span id="attend-time">9:02 AM</span>
+    </div>
+
+    <h1>Mrs. Sharma — Jr KG B</h1>
+    <p class="sub" id="week-subheading">Week 1 · Term 1 · Theme: My Classroom</p>
+
+    <div id="today-overview" class="today-overview"></div>
+
+    <div class="stat-grid">
+      <div class="stat-card"><p class="label">My attendance (term)</p><p class="value notranslate" id="myAttendanceTermValue">—</p></div>
+      <div class="stat-card"><p class="label">Class attendance today</p><p class="value notranslate" id="classAttendanceValue">26/28</p></div>
+      <div class="stat-card"><p class="label">Tasks pending today</p><p class="value warn notranslate" id="pending-count">0</p></div>
+      <div class="stat-card"><p class="label">Supervisor rating</p><p class="value notranslate">4.6</p></div>
+    </div>
+
+    <div id="classattendance-body" class="hidden"></div>
+    <div id="attendance-body" class="hidden"></div>
+    <div id="calendar-body" class="hidden"></div>
+    <div id="myday-body" class="hidden"></div>
+    <div id="week-body" class="hidden"></div>
+    <div id="ptm-tabbar-body" class="hidden"></div>
+    <div id="ptm-body" class="hidden"></div>
+    <div id="ptm-extras-body" class="hidden"></div>
+    <div id="attendancehub-body" class="hidden"></div>
+    <div id="mycompliance-body" class="hidden"></div>
+    <div id="teacherprofile-body" class="hidden"></div>
+    <div id="familyparents-body" class="hidden"></div>
+    <div id="admissions-body" class="hidden"></div>
+    <div id="monthlyeffective-body" class="hidden"></div>
+    <div id="monthlyassessment-body" class="hidden"></div>
+    <div id="assessment-body" class="hidden"></div>
+    <div id="flagsnotifications-body" class="hidden"></div>
+    <div id="myclass-body" class="hidden"></div>
+    <div id="aiassistance-body" class="hidden"></div>
+    <div id="parentinvolvement-body" class="hidden"></div>
+    <div id="compliancecal-body" class="hidden"></div>
+    <div id="attendancedashboard-body" class="hidden"></div>
+    <div id="assessmentdashboard-body" class="hidden"></div>
+    <div id="childrecord-body" class="hidden"></div>
+    <div id="materials-body" class="hidden"></div>
+    <div id="classroomstate-body" class="hidden"></div>
+    <div id="volunteers-body" class="hidden"></div>
+    <div id="homework-body" class="hidden"></div>
+  </div>
+  </div>
+
+  <footer class="app-footer">
+    <div class="app-footer-inner">
+      <div class="app-footer-brand">
+        <span class="topbar-brand-icon"><img src="assets/logo.png" alt="Bhavyata Foundation logo" class="brand-logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><span class="brand-fallback-emoji">🌱</span></span>
+        <div>
+          <div class="app-footer-brand-name">AARAMBH</div>
+          <div class="app-footer-brand-sub">Bhavyata Foundation × MCGM</div>
+        </div>
+      </div>
+      <div class="app-footer-links">
+        <a href="https://instagram.com/bhavyatafoundation" target="_blank" rel="noopener">📷 Instagram</a>
+        <a href="https://facebook.com/bhavyatafoundation" target="_blank" rel="noopener">📘 Facebook</a>
+        <a href="https://bhavyatafoundation.org" target="_blank" rel="noopener">🌐 Website</a>
+        <a href="mailto:contact@bhavyatafoundation.org">✉️ Contact</a>
+      </div>
+    </div>
+    <div class="app-footer-copy">© 2026 Bhavyata Foundation. All rights reserved.</div>
+  </footer>
+</div>
+
+<script src="js/portal-term.js?v=term2def" defer></script>
+<script src="js/i18n.js" defer></script>
+<script src="js/weeks/weeks-core.js?v=w29fix" defer></script>
+<script src="js/weeks/week1.js" defer></script>
+<script src="js/weeks/week2.js" defer></script>
+<script src="js/weeks/week3.js" defer></script>
+<script src="js/weeks/week4.js" defer></script>
+<script src="js/weeks/week5.js" defer></script>
+<script src="js/weeks/week6.js" defer></script>
+<script src="js/weeks/week7.js" defer></script>
+<script src="js/weeks/week8.js" defer></script>
+<script src="js/weeks/week9.js" defer></script>
+<script src="js/weeks/week11.js" defer></script>
+<script src="js/weeks/week15.js" defer></script>
+<script src="js/weeks/week16.js" defer></script>
+<script src="js/weeks/week17.js" defer></script>
+<script src="js/weeks/week18.js" defer></script>
+<script src="js/weeks/week19.js" defer></script>
+<script src="js/weeks/week20.js?v=wk36" defer></script>
+<script src="js/weeks/week21.js?v=wk36" defer></script>
+<script src="js/weeks/week22.js?v=wk36" defer></script>
+<script src="js/weeks/week23.js?v=wk36" defer></script>
+<script src="js/weeks/week24.js?v=wk36" defer></script>
+<script src="js/weeks/week25.js?v=wk36" defer></script>
+<script src="js/weeks/week26.js?v=wk36" defer></script>
+<script src="js/weeks/week27.js?v=wk36" defer></script>
+<script src="js/weeks/week28.js?v=wk36" defer></script>
+<script src="js/weeks/week29.js?v=wk36" defer></script>
+<script src="js/weeks/week30.js?v=wk36" defer></script>
+<script src="js/weeks/week31.js?v=wk36" defer></script>
+<script src="js/weeks/week32.js?v=wk36" defer></script>
+<script src="js/weeks/week33.js?v=wk36" defer></script>
+<script src="js/weeks/week34.js?v=wk36" defer></script>
+<script src="js/weeks/week35.js?v=wk36" defer></script>
+<script src="js/weeks/week36.js?v=wk36" defer></script>
+<script src="js/events-calendar.js" defer></script>
+<script src="js/parent-committee.js" defer></script>
+<script src="js/ptm-view.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
+<script src="js/class-records.js" defer></script>
+<script src="js/name-match.js" defer></script>
+<script src="js/pdf-branding.js" defer></script>
+<script src="js/data/attendance.js" defer></script>
+<script src="js/data/curriculum.js?v=w29fix" defer></script>
+<script src="js/data/pupil-attendance.js" defer></script>
+<script src="js/render/chrome.js" defer></script>
+<script src="js/render/app-bootstrap.js" defer></script>
+<script src="js/render/events-evidence.js" defer></script>
+<script src="js/render/materials.js" defer></script>
+<script src="js/render/parent-volunteers.js" defer></script>
+<script src="js/render/ui-helpers.js" defer></script>
+<script src="js/render/myday.js?v=t1fix2" defer></script>
+<script src="js/render/myday-materials.js" defer></script>
+<script src="js/render/myday-planning.js" defer></script>
+<script src="js/render/daily-plan-sync.js" defer></script>
+<script src="js/render/classroom-state.js" defer></script>
+<script src="js/test-mode-banner.js"></script>
+<script src="js/hide-ref-codes.js"></script>
+
+<!-- Shared assessment helpers must load before the teacher bundle. -->
+   <script src="js/grade-scale.js" defer></script>
+   <script src="js/hpc-master.js" defer></script>
+<!-- (assess-templates, assess-pretty-sheets and attendance-import-month were loaded here too:
+     too early — they switch themselves off before the part files exist — and a second time below.
+     Each is now loaded ONCE, after the part files.) -->
+
+<!-- Teacher portal scripts: deterministic modular parts, each <= 500 lines. No monolithic bundle. -->
+<script src="js/teacher/teacher-part-01.js" defer></script>
+<script src="js/teacher/teacher-part-02.js" defer></script>
+<script src="js/teacher/teacher-part-03.js" defer></script>
+<script src="js/teacher/teacher-part-04.js" defer></script>
+<script src="js/teacher/teacher-part-05.js" defer></script>
+<script src="js/teacher/teacher-part-06.js" defer></script>
+<script src="js/teacher/teacher-part-07.js" defer></script>
+<script src="js/teacher/teacher-part-08.js" defer></script>
+<script src="js/teacher/teacher-part-09.js" defer></script>
+<script src="js/teacher/teacher-part-10.js" defer></script>
+<script src="js/teacher/teacher-part-11.js" defer></script>
+<script src="js/teacher/teacher-part-12.js" defer></script>
+<script src="js/teacher/teacher-part-13.js?v=loop2" defer></script>
+<script src="js/teacher/teacher-part-14.js" defer></script>
+<script src="js/teacher/teacher-part-15.js" defer></script>
+<script src="js/teacher/teacher-part-16.js" defer></script>
+<script src="js/teacher/teacher-part-17.js?v=wbrange1" defer></script>
+<script src="js/teacher/teacher-part-18.js" defer></script>
+<script src="js/teacher/teacher-part-19.js?v=manual1" defer></script>
+<script src="js/teacher/teacher-part-20.js" defer></script>
+<script src="js/teacher/teacher-part-21.js?v=allrows1" defer></script>
+<script src="js/teacher/teacher-part-22.js?v=t2b1" defer></script>
+<script src="js/teacher/teacher-part-23.js?v=pdfy7" defer></script>
+<script src="js/teacher/teacher-part-24.js" defer></script>
+<script src="js/teacher/teacher-part-25.js?v=mcnote1" defer></script>
+<script src="js/teacher/teacher-part-26.js" defer></script>
+<script src="js/teacher/teacher-part-27.js?v=import3" defer></script>
+<script src="js/teacher/teacher-part-28.js?v=guard1" defer></script>
+<script src="js/teacher/teacher-part-29.js?v=cdisp1" defer></script>
+<script src="js/viva.js?v=collapsed1" defer></script>
+<script src="js/admission-map.js" defer></script>
+<script src="js/teacher/teacher-part-30.js?v=noterm2" defer></script>
+<!-- These load AFTER the part files: each adds to, or replaces, part functions by name. -->
+<script src="js/render/transition.js" defer></script>
+<script src="js/render/teacher-leave.js" defer></script>
+<script src="js/assess-import-checks.js" defer></script>
+<script src="js/import-class-filter.js" defer></script>
+<script src="js/teacher/assess-ocr-boost.js" defer></script>
+<script src="js/workbook-import-fix.js" defer></script>
+<script src="js/attendance-import-month.js" defer></script>
+<script src="js/import-guard.js" defer></script>
+<script src="js/attendance-template.js" defer></script>
+<script src="js/assess-templates.js" defer></script>
+<script src="js/assess-pretty-sheets.js" defer></script>
+<script src="js/workbook-records.js" defer></script>
+<script src="js/roll-tools.js" defer></script>
+<script src="js/attendance-clear-month.js" defer></script>
+<script src="js/pretest-levels.js" defer></script>
+<script src="js/content-sync.js" defer></script>
+<script src="js/pretest-db.js" defer></script>
+<script src="js/pretest-absent.js" defer></script>
+<script src="js/pretest-month.js" defer></script>
+<script src="js/child-feedback-db.js" defer></script>
+<script src="js/render/class-switch.js" defer></script>
+<script src="js/assess-periods.js?v=term3" defer></script>
+<script src="js/assess-records-redesign.js" defer></script>
+<script src="js/weeks/activity-renderers.js" defer></script>
+<script src="js/weekly-plan-sync.js" defer></script>
+<script src="js/classlist-import-review.js" defer></script>
+<script src="js/attendance-only.js" defer></script>
+<script src="js/assess-inactive.js?v=mcnote1" defer></script>
+<script src="js/obs-submit.js?v=sub2" defer></script>
+<script src="js/assessment-data-tools.js?v=obsbox1" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="js/assessment-reports.js?v=print1" defer></script>
+<script src="js/parent-notes.js?v=menu1" defer></script>
+<script src="js/ai-photo-reader.js" defer></script>
+<script src="js/hpc-master.js" defer></script>
+<script src="js/hpc-card.js" defer></script>
+<script src="js/school-report.js" defer></script>
+
+
+<script>
+  function googleTranslateElementInit(){
+    new google.translate.TranslateElement({
+      pageLanguage: 'en',
+      includedLanguages: 'hi,mr,gu',
+      layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+      autoDisplay: false
+    }, 'google_translate_element');
+  }
+</script>
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<script src="js/digit-convert.js" defer></script>
+
+
+<script src="js/render/voice-translate.js?v=2" defer></script>
+<script src="js/render/myday-coverage.js" defer></script>
+<script src="js/render/live-poll.js" defer></script>
+<!-- Last of all: it reads each Assessment tab once everything else has drawn it. -->
+<script src="js/cg-summary.js?v=sheetfix1" defer></script>
+<script src="js/cg-domains.js?v=weights1" defer></script>
+
+<script src="js/teacher-start.js?v=nolist1" defer></script>
+</body>
+</html>

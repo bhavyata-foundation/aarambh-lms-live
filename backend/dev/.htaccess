@@ -1,0 +1,3 @@
+<FilesMatch "\.(sql|txt|json)$">
+Require all denied
+</FilesMatch>

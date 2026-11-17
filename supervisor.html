@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bhavyata Portal — Supervisor</title>
+
+<link rel="stylesheet" href="css/style-legacy.css">
+<link rel="stylesheet" href="css/style-new-design.css">
+
+<style>
+
+/* =========================================================
+   SUPERVISOR PAGE OFFSET
+   ========================================================= */
+.layout { padding-top: 52px; }
+
+/* =========================================================
+   VISIT SCHEDULE
+   ========================================================= */
+.visit-schedule-shell { width: 100%; }
+.visit-section-head { margin-bottom: 18px; }
+.visit-section-head h2 { margin: 0 0 5px; font-size: 22px; }
+.visit-section-head p { margin: 0; color: var(--muted, #777); font-size: 14px; }
+
+/* =========================================================
+   VISIT TABS
+   ========================================================= */
+.visit-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 5px;
+  margin-bottom: 16px;
+  background: #f3f3f1;
+  border-radius: 10px;
+  width: fit-content;
+}
+.visit-tab {
+  border: 0;
+  background: transparent;
+  color: #666;
+  padding: 9px 16px;
+  border-radius: 7px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.visit-tab.active {
+  background: #fff;
+  color: var(--role-supervisor, #5848bd);
+  box-shadow: 0 1px 4px rgba(0,0,0,.10);
+}
+
+/* =========================================================
+   VISIT PANELS
+   ========================================================= */
+.visit-panel { display: none; }
+.visit-panel.active { display: block; }
+
+/* =========================================================
+   VISIT CARDS
+   ========================================================= */
+.visit-form-card,
+.visit-calendar-card,
+.visit-history-card {
+  background: #fff;
+  border: 1px solid #e2e2df;
+  border-radius: 14px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   VISIT FORM TITLE
+   ========================================================= */
+.visit-form-title { margin-bottom: 18px; }
+.visit-form-title h3 { margin: 0 0 4px; font-size: 17px; }
+.visit-form-title p { margin: 0; color: #777; font-size: 13px; }
+
+/* =========================================================
+   VISIT CALENDAR TOOLBAR
+   ========================================================= */
+.visit-calendar-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.visit-calendar-toolbar h3 { margin: 0; font-size: 17px; }
+.visit-calendar-controls { display: flex; gap: 6px; }
+.visit-calendar-controls button {
+  border: 1px solid #ddd;
+  background: #fff;
+  width: 34px;
+  height: 34px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 17px;
+}
+
+/* =========================================================
+   VISIT CALENDAR GRID
+   ========================================================= */
+.visit-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.visit-calendar-weekday {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #777;
+  padding: 6px 0;
+}
+.visit-calendar-day {
+  min-height: 92px;
+  border: 1px solid #e7e7e4;
+  border-radius: 8px;
+  padding: 7px;
+  background: #fff;
+  box-sizing: border-box;
+}
+.visit-calendar-day.empty { background: #fafafa; }
+.visit-calendar-day.today { border-color: var(--role-supervisor, #5848bd); }
+.visit-calendar-day-number { font-size: 12px; font-weight: 700; color: #555; }
+
+/* =========================================================
+   VISIT CALENDAR EVENT
+   ========================================================= */
+.visit-calendar-visit {
+  margin-top: 6px;
+  padding: 5px 6px;
+  border-radius: 6px;
+  background: #f0edff;
+  color: #4d3da9;
+  font-size: 11px;
+  line-height: 1.25;
+  cursor: pointer;
+}
+.visit-calendar-visit strong { display: block; margin-bottom: 2px; }
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+.visit-empty {
+  padding: 34px 20px;
+  text-align: center;
+  color: #777;
+  font-size: 14px;
+}
+
+/* =========================================================
+   UPCOMING / HISTORY
+   ========================================================= */
+.visit-upcoming-list,
+.visit-history-list { display: grid; gap: 10px; }
+.visit-record {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 15px 16px;
+  border: 1px solid #e5e5e2;
+  border-radius: 10px;
+  background: #fff;
+}
+.visit-record-main { min-width: 0; }
+.visit-record-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+.visit-record-meta { color: #777; font-size: 12px; }
+.visit-record-actions { display: flex; gap: 7px; flex-shrink: 0; }
+.visit-record-actions button {
+  border: 1px solid #d9d9d6;
+  background: #fff;
+  color: #555;
+  border-radius: 7px;
+  padding: 7px 10px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.visit-record-actions button.primary {
+  background: var(--role-supervisor, #5848bd);
+  border-color: var(--role-supervisor, #5848bd);
+  color: #fff;
+}
+
+/* =========================================================
+   VISIT STATUS
+   ========================================================= */
+.visit-status {
+  display: inline-block;
+  margin-top: 7px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: #f2f2ef;
+  color: #666;
+  font-size: 10px;
+  font-weight: 700;
+}
+.visit-status.scheduled { background: #eeeaff; color: #5142b3; }
+.visit-status.completed { background: #e9f6ec; color: #28753c; }
+.visit-status.cancelled { background: #fdecec; color: #a63838; }
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 900px) {
+  .visit-calendar-day { min-height: 72px; }
+  .visit-record { align-items: flex-start; flex-direction: column; }
+  .visit-record-actions { width: 100%; }
+}
+
+@media (max-width: 650px) {
+  .visit-tabs { width: 100%; overflow-x: auto; }
+  .visit-tab { white-space: nowrap; flex: 1; }
+  .visit-calendar-grid { gap: 3px; }
+  .visit-calendar-day { min-height: 58px; padding: 4px; }
+  .visit-calendar-visit { font-size: 9px; padding: 3px; }
+  .visit-calendar-visit .visit-extra { display: none; }
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div id="preview-banner"></div>
+
+
+<!-- =========================================================
+     TOP BAR
+     ========================================================= -->
+
+<div class="topbar">
+
+  <div class="topbar-left">
+
+    <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+
+    <span class="topbar-brand">
+      <span class="topbar-brand-icon">
+        <img
+          src="assets/logo.png"
+          alt="Bhavyata Foundation logo"
+          class="brand-logo-img"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+        >
+        <span class="brand-fallback-emoji">🌱</span>
+      </span>
+      <span class="brand">Bhavyata portal</span>
+    </span>
+
+    <span class="page-label" id="pageLabel">Visit Schedule</span>
+
+  </div>
+
+
+  <div style="display:flex; align-items:center; gap:12px;">
+
+    <!-- =====================================================
+         NOTIFICATION BELL
+         ===================================================== -->
+    <div id="notifBellWrap" style="position:relative;">
+
+      <button
+        onclick="toggleNotificationBell()"
+        style="background:rgba(255,255,255,.15); border:none; color:#fff; width:38px; height:38px; border-radius:50%; font-size:17px; cursor:pointer; position:relative;"
+      >
+        🔔
+        <span
+          id="notifBadge"
+          class="hidden"
+          style="position:absolute; top:-2px; right:-2px; background:#c8433f; color:#fff; font-size:10px; font-weight:700; min-width:16px; height:16px; border-radius:8px; display:flex; align-items:center; justify-content:center; padding:0 3px;"
+        >0</span>
+      </button>
+
+      <div
+        id="notifDropdown"
+        class="hidden"
+        style="position:absolute; top:46px; right:0; width:320px; max-height:400px; overflow-y:auto; background:#fff; color:var(--text, #222); border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,.18); z-index:200;"
+      ></div>
+
+    </div>
+
+
+    <!-- =====================================================
+         USER MENU
+         ===================================================== -->
+    <div class="user-menu" id="userMenu">
+
+      <button class="user-menu-trigger" onclick="toggleUserMenu()">
+        <span class="user-avatar">NG</span>
+        <span class="user-name">Neha Gangan</span>
+        <span class="tag">Supervisor</span>
+        <span class="user-caret">▾</span>
+      </button>
+
+      <div class="user-dropdown hidden" id="userDropdown">
+        <button onclick="fetch('backend/auth/logout.php').finally(() => location.href = 'index.html?no_dev=1')">
+          Log out
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================================================
+     MAIN LAYOUT
+     ========================================================= -->
+
+<div class="layout">
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
+
+
+  <!-- =======================================================
+       SIDEBAR
+       ======================================================= -->
+
+  <div class="sidebar" id="sidebar">
+
+    <div class="sidebar-nav">
+
+      <!-- VISIT SCHEDULE -->
+      <div class="grp">Visit Schedule</div>
+
+      <button class="sidebar-nav-btn active" id="navVisitSchedule" onclick="switchSection('visitschedule')">
+        <span class="icon">📅</span>
+        <span>Visit Schedule</span>
+      </button>
+
+      <!-- SCHOOLS -->
+      <div class="grp">Schools</div>
+
+      <button class="sidebar-nav-btn" id="navSchools" onclick="switchSection('schools')">
+        <span class="icon">🏫</span>
+        <span>My Schools</span>
+      </button>
+
+      <!-- MONITORING -->
+      <div class="grp">Monitoring</div>
+
+      <button class="sidebar-nav-btn" id="navEffective" onclick="switchSection('effective')">
+        <span class="icon">✅</span>
+        <span>Approvals (Effective &amp; Leave)</span>
+      </button>
+
+      <button class="sidebar-nav-btn" id="navIssues" onclick="switchSection('issues')">
+        <span class="icon">⚠️</span>
+        <span>Compliance Issues &amp; Flags</span>
+      </button>
+
+      <!-- CURRICULUM -->
+      <div class="grp">Curriculum</div>
+
+      <button class="sidebar-nav-btn" id="navCurriculum" onclick="switchSection('curriculum'); renderCurriculumMaster();">
+        <span class="icon">📚</span>
+        <span>Curriculum Master</span>
+      </button>
+
+      <!-- EVENTS -->
+      <div class="grp">Events</div>
+
+      <button class="sidebar-nav-btn" id="navEvents" onclick="switchSection('events')">
+        <span class="icon">📌</span>
+        <span>PTM &amp; Training</span>
+      </button>
+
+    </div>
+
+    <div class="sidebar-label">Teachers · This week</div>
+
+    <div id="teacher-list"></div>
+
+  </div>
+
+
+  <!-- =======================================================
+       DASHBOARD
+       ======================================================= -->
+
+  <div class="dash">
+      <h1 id="supervisorHeading">Neha Gangan — Field Supervisor</h1>
+
+    <p class="sub" id="dash-sub">Visit Schedule · School compliance monitoring</p>
+
+
+    <!-- =====================================================
+         SUMMARY CARDS
+         ===================================================== -->
+
+    <div class="stat-grid">
+
+      <div class="stat-card">
+        <p class="label">Visits this month</p>
+        <p class="value" id="visitMonthCount">0</p>
+      </div>
+
+      <div class="stat-card">
+        <p class="label">Upcoming visits</p>
+        <p class="value warn" id="visitUpcomingCount">0</p>
+      </div>
+
+      <div class="stat-card">
+        <p class="label">Completed visits</p>
+        <p class="value" id="visitCompletedCount">0</p>
+      </div>
+
+      <div class="stat-card">
+        <p class="label">Follow-ups</p>
+        <p class="value" id="visitFollowupCount">0</p>
+      </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         VISIT SCHEDULE
+         ===================================================== -->
+
+    <section id="section-visitschedule">
+
+      <div class="visit-schedule-shell">
+
+        <div class="visit-section-head">
+          <h2>Visit Schedule</h2>
+          <p>Schedule, review and track school visits before completing the applicable compliance checklists.</p>
+        </div>
+
+        <!-- VISIT SCHEDULE SUB-TABS -->
+        <div class="visit-tabs">
+
+          <button class="visit-tab active" id="visitTabCalendar" onclick="switchVisitTab('calendar')">
+            📅 Visit Calendar
+          </button>
+
+          <button class="visit-tab" id="visitTabUpcoming" onclick="switchVisitTab('upcoming')">
+            🕐 Upcoming Visits
+          </button>
+
+          <button class="visit-tab" id="visitTabHistory" onclick="switchVisitTab('history')">
+            🕓 Visit History
+          </button>
+
+        </div>
+
+        <!-- VISIT CALENDAR -->
+        <div id="visit-panel-calendar" class="visit-panel active">
+
+          <div class="visit-calendar-card">
+
+            <div class="visit-calendar-toolbar">
+
+              <h3 id="visitCalendarMonth">Visit Calendar</h3>
+
+              <div class="visit-calendar-controls">
+                <button type="button" onclick="changeVisitCalendarMonth(-1)" aria-label="Previous month">‹</button>
+                <button type="button" onclick="changeVisitCalendarMonth(1)" aria-label="Next month">›</button>
+              </div>
+
+            </div>
+
+            <div id="visit-calendar-body"></div>
+
+          </div>
+
+        </div>
+
+        <!-- UPCOMING VISITS -->
+        <div id="visit-panel-upcoming" class="visit-panel">
+
+          <div class="visit-form-card">
+
+            <div class="visit-form-title">
+              <h3>Upcoming Visits</h3>
+              <p>Scheduled visits that have not yet been completed.</p>
+            </div>
+
+            <div id="visit-upcoming-body"></div>
+
+          </div>
+
+        </div>
+
+        <!-- VISIT HISTORY -->
+        <div id="visit-panel-history" class="visit-panel">
+
+          <div class="visit-history-card">
+
+            <div class="visit-form-title">
+              <h3>Visit History</h3>
+              <p>Previous visits and their current follow-up status.</p>
+            </div>
+
+            <div id="history-list"></div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         NEW / SCHEDULE VISIT
+         ===================================================== -->
+
+    <section id="section-visitform" class="hidden">
+      <div id="visit-form-body"></div>
+    </section>
+
+
+    <!-- =====================================================
+         VISIT WORKSPACE
+         ===================================================== -->
+
+    <section id="section-visitworkspace" class="hidden">
+      <div id="visit-workspace-body"></div>
+    </section>
+
+
+    <!-- =====================================================
+         MY SCHOOLS
+         ===================================================== -->
+
+    <section id="section-schools" class="hidden">
+      <div id="my-schools-body"></div>
+    </section>
+
+
+    <!-- =====================================================
+         EVENTS / PTM & TRAINING
+         ===================================================== -->
+
+    <section id="section-curriculum" class="hidden">
+      <div id="curriculum-body"></div>
+    </section>
+
+    <section id="section-events" class="hidden">
+
+      <!--
+        Kept because older schools-events.js may still look for
+        this element. It remains hidden in the current design.
+      -->
+      <div id="events-admin-body" style="display:none;"></div>
+
+      <div class="card" style="margin-bottom:14px;">
+
+        <div class="hd">
+          <div>
+            <h3>Viewing</h3>
+            <p class="cap">Pick a school and class for PTM and training scheduling.</p>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+
+          <div>
+            <label class="field-label-admin">School</label>
+            <select id="ptmTopSchoolSelect" onchange="PTM_onTopSchoolChange()">
+              <option>Loading…</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="field-label-admin">Class / Teacher</label>
+            <select id="ptmTopClassSelect" onchange="PTM_onTopClassChange()">
+              <option>Select a school first</option>
+            </select>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div id="ptm-schedule-body"></div>
+
+    </section>
+
+
+    <!-- =====================================================
+         APPROVALS — MONTHLY EFFECTIVE + TEACHER LEAVE
+         ===================================================== -->
+
+    <section id="section-effective" class="hidden">
+
+      <p class="sub" style="margin:0 0 16px;">
+        Every teacher's Monthly Effective submission still waiting
+        on Step 1 — attendance and Effective sheet check.
+      </p>
+
+      <div id="approvalsNote" class="cap" style="margin:0 0 16px;"></div>
+
+      <div id="approvalsList"></div>
+
+      <!-- Teacher leave requests waiting on the supervisor's decision.
+           Filled in by js/leave-approvals.js. A leave counts only once
+           both the supervisor and the principal approve it. -->
+      <div class="card" id="leaveApprovalsBox" style="padding:18px; margin-top:22px;"></div>
+
+    </section>
+
+
+    <!-- =====================================================
+         COMPLIANCE ISSUES
+         ===================================================== -->
+
+    <section id="section-issues" class="hidden">
+      <div id="compliance-issues-body"></div>
+
+      <!-- Raise a flag for a teacher + every flag raised, with replies.
+           Filled in by js/supervisor-flags.js; saved to teacher_flags. -->
+      <div class="card" id="supervisorFlagsBox" style="padding:18px; margin-top:22px;"></div>
+    </section>
+
+  </div>
+
+</div>
+
+
+<!-- =========================================================
+     SHARED SCRIPTS
+     ========================================================= -->
+
+<script src="js/render/ui-helpers.js" defer></script>
+
+<script src="js/supervisor/core/checklist.js" defer></script>
+
+
+<!-- =========================================================
+     EXISTING SUPERVISOR FEATURES
+     ========================================================= -->
+
+<script src="js/supervisor/visit-context.js" defer></script>
+
+<script src="js/supervisor/visit/visit-cover.js" defer></script>
+
+<script src="js/supervisor/schools/schools-events.js" defer></script>
+
+<script src="js/supervisor/schools/compliance-issue.js" defer></script>
+
+
+<!-- =========================================================
+     PTM SHARED RENDERER
+     ========================================================= -->
+
+<script src="js/ptm-view.js" defer></script>
+
+
+<!-- =========================================================
+     VISIT SCHEDULE MODULES
+     ========================================================= -->
+
+<!-- Real 91-item Weekly Compliance Checklist data (WEEKLY_CATEGORIES /
+     RATING_SCALE / TICK_OPTIONS) — must load before visit-compliance.js,
+     which renders it. -->
+<script src="js/supervisor/weekly-checklist-day.js" defer></script>
+
+<script src="js/supervisor/visit/visit-history.js" defer></script>
+
+<script src="js/supervisor/visit/visit-for.js" defer></script>
+
+<!-- IMPORTANT: Visit Details workflow -->
+<script src="js/supervisor/visit/visit-details.js" defer></script>
+
+<!-- Defines window.openSupervisorVisitCompliance() — the extension
+     seam visit-details.js's own comment names as "the next file".
+     Must load after visit-details.js and weekly-checklist-day.js. -->
+<script src="js/supervisor/visit/visit-compliance.js" defer></script>
+
+<script src="js/supervisor/visit/visit-schedule.js" defer></script>
+
+
+<!-- =========================================================
+     TEACHER LEAVE APPROVALS (shared with principal.html)
+     ========================================================= -->
+
+<script src="js/leave-approvals.js" defer></script>
+
+
+<!-- =========================================================
+     TEACHER FLAGS (raise + track replies)
+     ========================================================= -->
+
+<script src="js/supervisor-flags.js" defer></script>
+
+
+<!-- =========================================================
+     SUPERVISOR PTM CONTROLLER
+     ========================================================= -->
+
+<script>
+
+/*
+  Existing Supervisor PTM controller kept separate from
+  Visit Schedule.
+*/
+
+let ptmCurrentSchoolId = 1;
+
+let ptmCurrentClassId = 47;
+
+
+// Shared HTML-escaping helper for the two selectors below.
+function PTM_escapeHtml(value) {
+  return String(value || '').replace(/[&<>"']/g, function (character) {
+    return {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[character];
+  });
+}
+
+
+// ==========================================================
+// OPEN PTM SECTION
+// ==========================================================
+
+function renderSupervisorPTM() {
+  if (typeof PTM_loadTopSchoolSelector === 'function') {
+    PTM_loadTopSchoolSelector();
+  }
+}
+
+
+// ==========================================================
+// LOAD SCHOOL SELECTOR
+// ==========================================================
+
+async function PTM_loadTopSchoolSelector() {
+
+  const sel = document.getElementById('ptmTopSchoolSelect');
+
+  if (!sel) {
+    return;
+  }
+
+  try {
+
+    const res = await fetch('backend/get_schools_list.php' + window.location.search);
+
+    const data = await res.json();
+
+    if (data.status !== 'success' || !data.schools) {
+      sel.innerHTML = '<option value="">Could not load schools</option>';
+      return;
+    }
+
+    sel.innerHTML = data.schools
+      .map(function (school) {
+        return `
+              <option value="${school.id}">
+                ${PTM_escapeHtml(school.name)}
+              </option>
+            `;
+      })
+      .join('');
+
+    if (
+      ptmCurrentSchoolId &&
+      [...sel.options].some(function (option) {
+        return option.value === String(ptmCurrentSchoolId);
+      })
+    ) {
+      sel.value = String(ptmCurrentSchoolId);
+    }
+
+    await PTM_loadTopClassSelector(ptmCurrentClassId);
+
+    PTM_renderDashboardForCurrentSelection();
+
+  }
+
+  catch (err) {
+
+    console.error('Could not load PTM schools:', err);
+
+    sel.innerHTML = '<option value="">Could not reach the server</option>';
+
+  }
+
+}
+
+
+// ==========================================================
+// LOAD CLASS / TEACHER SELECTOR
+// ==========================================================
+
+async function PTM_loadTopClassSelector(preselectClassId) {
+
+  const classSel = document.getElementById('ptmTopClassSelect');
+
+  const schoolSel = document.getElementById('ptmTopSchoolSelect');
+
+  if (!classSel || !schoolSel) {
+    return;
+  }
+
+  const schoolId = schoolSel.value;
+
+  if (!schoolId) {
+    classSel.innerHTML = '<option value="">Select a school first</option>';
+    ptmCurrentClassId = null;
+    return;
+  }
+
+  classSel.innerHTML = '<option value="">Loading…</option>';
+
+  try {
+
+    const params = new URLSearchParams(window.location.search);
+
+    params.set('school_id', schoolId);
+
+    /*
+      IMPORTANT:
+
+      The real backend filename is:
+
+      backend/get_classes_for_school.php
+
+      not:
+
+      get_classes_for_Schools.php
+    */
+
+    const res = await fetch('backend/get_classes_for_school.php?' + params.toString());
+
+    const data = await res.json();
+
+    if (data.status !== 'success' || !data.classes || !data.classes.length) {
+      classSel.innerHTML = '<option value="">No classes at this school yet</option>';
+      ptmCurrentClassId = null;
+      return;
+    }
+
+    classSel.innerHTML = data.classes
+      .map(function (classRow) {
+        return `
+              <option value="${classRow.id}">
+                ${PTM_escapeHtml(classRow.name || 'Unnamed class')} — ${PTM_escapeHtml(classRow.teacher_name || 'Unassigned')}
+              </option>
+            `;
+      })
+      .join('');
+
+    if (
+      preselectClassId &&
+      [...classSel.options].some(function (option) {
+        return option.value === String(preselectClassId);
+      })
+    ) {
+      classSel.value = String(preselectClassId);
+    }
+
+    ptmCurrentClassId = classSel.value ? parseInt(classSel.value, 10) : null;
+
+  }
+
+  catch (err) {
+
+    console.error('Could not load PTM classes:', err);
+
+    classSel.innerHTML = '<option value="">Could not reach the server</option>';
+
+    ptmCurrentClassId = null;
+
+  }
+
+}
+
+
+// ==========================================================
+// SCHOOL CHANGED
+// ==========================================================
+
+async function PTM_onTopSchoolChange() {
+
+  const sel = document.getElementById('ptmTopSchoolSelect');
+
+  if (!sel) {
+    return;
+  }
+
+  ptmCurrentSchoolId = sel.value ? parseInt(sel.value, 10) : null;
+
+  await PTM_loadTopClassSelector(null);
+
+  PTM_renderDashboardForCurrentSelection();
+
+}
+
+
+// ==========================================================
+// CLASS CHANGED
+// ==========================================================
+
+function PTM_onTopClassChange() {
+
+  const sel = document.getElementById('ptmTopClassSelect');
+
+  if (!sel) {
+    return;
+  }
+
+  ptmCurrentClassId = sel.value ? parseInt(sel.value, 10) : null;
+
+  PTM_renderDashboardForCurrentSelection();
+
+}
+
+
+// ==========================================================
+// RENDER PTM / TRAINING
+// ==========================================================
+
+function PTM_renderDashboardForCurrentSelection() {
+
+  const classSel = document.getElementById('ptmTopClassSelect');
+
+  const schoolSel = document.getElementById('ptmTopSchoolSelect');
+
+  const body = document.getElementById('ptm-schedule-body');
+
+  if (!classSel || !schoolSel || !body) {
+    return;
+  }
+
+  if (typeof renderPTMView !== 'function') {
+    body.innerHTML = '<p class="sub">PTM renderer is not available.</p>';
+    return;
+  }
+
+  const schoolOption = schoolSel.selectedOptions[0];
+
+  const classOption = classSel.selectedOptions[0];
+
+  const contextLabel =
+    (schoolOption ? schoolOption.textContent : '') +
+    (classOption && classSel.value ? ' — ' + classOption.textContent : '');
+
+  renderPTMView('ptm-schedule-body', {
+    schoolId: ptmCurrentSchoolId,
+    classId: ptmCurrentClassId,
+    role: 'supervisor',
+    canSchedule: true,
+    showScheduleForm: true,
+    canToggleTeacherPrep: false,
+    canToggleSupervisorPrep: true,
+    contextLabel: contextLabel,
+    querySuffix: window.location.search
+  });
+
+}
+
+</script>
+
+<script src="js/supervisor/curriculum-master.js?v=cm1" defer></script>
+<script src="js/test-mode-banner.js"></script>
+<script src="js/hide-ref-codes.js"></script>
+</body>
+
+</html>

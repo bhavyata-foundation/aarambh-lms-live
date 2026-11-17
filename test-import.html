@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <title>
+        Aarambh Attendance Import Test
+    </title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+        }
+
+        button,
+        select,
+        input {
+            margin: 8px;
+            padding: 8px;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            white-space: pre-wrap;
+            border-radius: 6px;
+            max-height: 600px;
+            overflow: auto;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="section">
+
+    <h2>
+        Attendance Excel Test
+    </h2>
+
+    <input
+        type="file"
+        id="excelFile"
+        accept=".xlsx,.xls"
+    >
+
+</div>
+
+
+<div class="section">
+
+    <h3>
+        Step 1 — Detect Excel
+    </h3>
+
+    <button
+        type="button"
+        id="detectButton"
+    >
+        Analyse Excel
+    </button>
+
+    <pre id="detectResult">
+No file analysed yet.
+    </pre>
+
+</div>
+
+
+<div class="section">
+
+    <h3>
+        Step 2 — Convert Attendance
+    </h3>
+
+    <select id="sheetSelect">
+
+        <option value="JULY 26">
+            JULY 26
+        </option>
+
+        <option value="AUG 26">
+            AUG 26
+        </option>
+
+    </select>
+
+    <button
+        type="button"
+        id="convertButton"
+    >
+        Convert Attendance
+    </button>
+
+    <pre id="convertResult">
+No conversion attempted yet.
+    </pre>
+
+</div>
+
+
+<script>
+
+const excelInput =
+    document.getElementById(
+        'excelFile'
+    );
+
+
+document
+    .getElementById(
+        'detectButton'
+    )
+    .addEventListener(
+        'click',
+        detectExcel
+    );
+
+
+document
+    .getElementById(
+        'convertButton'
+    )
+    .addEventListener(
+        'click',
+        convertAttendance
+    );
+
+
+async function detectExcel() {
+
+    const result =
+        document.getElementById(
+            'detectResult'
+        );
+
+    if (!excelInput.files.length) {
+
+        alert(
+            'Please choose Sr kg.xlsx first.'
+        );
+
+        return;
+    }
+
+    result.textContent =
+        'Reading Excel...';
+
+
+    const formData =
+        new FormData();
+
+    formData.append(
+        'file',
+        excelInput.files[0]
+    );
+
+
+    try {
+
+        const response =
+            await fetch(
+                'backend/import/detect-format.php',
+                {
+                    method: 'POST',
+                    body: formData
+                }
+            );
+
+
+        const raw =
+            await response.text();
+
+
+        try {
+
+            const data =
+                JSON.parse(raw);
+
+            result.textContent =
+                JSON.stringify(
+                    data,
+                    null,
+                    2
+                );
+
+        } catch (jsonError) {
+
+            result.textContent =
+                'SERVER RETURNED NON-JSON:\n\n'
+                + raw;
+        }
+
+    } catch (error) {
+
+        result.textContent =
+            'REQUEST ERROR:\n'
+            + error.message;
+    }
+}
+
+
+
+async function convertAttendance() {
+
+    const result =
+        document.getElementById(
+            'convertResult'
+        );
+
+    if (!excelInput.files.length) {
+
+        alert(
+            'Please choose Sr kg.xlsx first.'
+        );
+
+        return;
+    }
+
+
+    const sheet =
+        document.getElementById(
+            'sheetSelect'
+        ).value;
+
+
+    result.textContent =
+        'Converting '
+        + sheet
+        + '...';
+
+
+    const formData =
+        new FormData();
+
+
+    formData.append(
+        'file',
+        excelInput.files[0]
+    );
+
+
+    formData.append(
+        'sheet',
+        sheet
+    );
+
+
+    try {
+
+        const response =
+            await fetch(
+                'backend/import/convert.php',
+                {
+                    method: 'POST',
+                    body: formData
+                }
+            );
+
+
+        const raw =
+            await response.text();
+
+
+        /*
+         * IMPORTANT:
+         * We read raw text first so PHP errors
+         * become visible.
+         */
+        try {
+
+            const data =
+                JSON.parse(raw);
+
+            result.textContent =
+                JSON.stringify(
+                    data,
+                    null,
+                    2
+                );
+
+        } catch (jsonError) {
+
+            result.textContent =
+                'SERVER RETURNED NON-JSON:\n\n'
+                + raw;
+        }
+
+
+    } catch (error) {
+
+        result.textContent =
+            'REQUEST ERROR:\n\n'
+            + error.message;
+    }
+}
+
+</script>
+
+</body>
+
+</html>

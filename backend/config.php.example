@@ -1,0 +1,9 @@
+<?php
+// COPY THIS FILE to backend/config.php ON THE SERVER ONLY (cPanel > File Manager).
+// Fill in the real values there. backend/config.php is listed in .gitignore and must never be committed.
+
+$db_host = 'localhost';
+$db_name = 'bhavyata_aarambh_lms';
+$db_user = 'bhavyata_bhavyata';
+$db_pass = 'PUT_THE_REAL_PASSWORD_HERE';
+$db_port = 3306;

@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/bhavyata/public_html/portal.bhavyatafoundation.com/aarambh-lms/
+    - /bin/rsync -a --exclude='.git' --exclude='.cpanel.yml' --exclude='.gitignore' --exclude='CHANGE-WORKFLOW.md' --exclude='CHANGELOG.md' --exclude='db/' --exclude='backend/config.php' ./ $DEPLOYPATH

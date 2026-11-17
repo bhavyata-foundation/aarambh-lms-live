@@ -1,0 +1,13 @@
+# secrets and server-only settings: never commit these
+backend/config.php
+backend/users/db_config.php.local
+*.local.php
+
+# backups and generated files
+backups/
+*.bak
+*.zip
+*.log
+.DS_Store
+Thumbs.db
+backend/drive/google_oauth_config.php

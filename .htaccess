@@ -1,0 +1,13 @@
+   # Always use HTTPS
+   RewriteEngine On
+   RewriteCond %{HTTPS} off
+   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+   # No folder listings
+   Options -Indexes
+
+   # Database scripts and exports are never downloadable
+   <FilesMatch "\.(sql|bak|zip|log)$">
+     Require all denied
+   </FilesMatch>
+   
